@@ -20,7 +20,12 @@
         background-color: #dddddd;
     }
 </style>
-
+<div class="input-group rounded" style="margin: 10px 0 10px 0">
+    <input type="search" class="form-control rounded" id="searchInput" placeholder="Tìm kiếm theo tên hoặc mã số sinh viên" aria-label="Search" aria-describedby="search-addon" />
+    <button type="button" class="input-group-text border-0" id="searchButton" onclick="search()">
+        <i class="fas fa-search"></i>
+    </button>
+</div>
 <table id="tbl_data">
     <tr>
         <td>    </td>
@@ -28,10 +33,16 @@
 </table>
 
 <script>
-    function getList() {
+    function search() {
+        var searchValue = $("#searchInput").val();
+        var searchOption = $("#searchOption").val();
+        getList(searchValue, searchOption);
+    }
+    function getList(search, searchOption) {
         $.ajax({
             url: "/SinhVien/GetList",
             method: "POST",
+            data: { search: search },
             success: function (result) {
                 var obj = JSON.parse(result);
                 console.log(obj);

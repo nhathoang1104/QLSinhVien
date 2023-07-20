@@ -26,10 +26,23 @@ namespace WebApplication1.Controllers
         {
             return View();
         }
-        public string GetList()
+        public string GetList(string search)
         {
             var dssv = db.SinhViens;
-            return JsonConvert.SerializeObject(dssv);
+
+            if (string.IsNullOrEmpty(search))
+            {
+                return JsonConvert.SerializeObject(dssv);
+            }
+            else
+            {
+                // Thực hiện tìm kiếm dựa trên điều kiện search và trả về kết quả tương ứng tìm kiếm theo tên
+                var filteredData = dssv.Where(s =>
+                            s.HoTen.Contains(search) ||
+                            s.MSSV.Contains(search)
+                );
+                return JsonConvert.SerializeObject(filteredData);
+            }
         }
         public string GetObject(string mssv)
         {
