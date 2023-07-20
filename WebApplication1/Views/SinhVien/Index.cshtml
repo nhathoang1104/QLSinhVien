@@ -1,0 +1,107 @@
+﻿
+@{
+    ViewBag.Title = "Danh sách sinh viên";
+}
+
+<style>
+    table {
+        font-family: arial, sans-serif;
+        border-collapse: collapse;
+        width: 100%;
+    }
+
+    td, th {
+        border: 1px solid #dddddd;
+        text-align: left;
+        padding: 8px;
+    }
+
+    tr:nth-child(even) {
+        background-color: #dddddd;
+    }
+</style>
+
+<table id="tbl_data">
+    <tr>
+        <td>    </td>
+    </tr>
+</table>
+
+<script>
+    function getList() {
+        $.ajax({
+            url: "/SinhVien/GetList",
+            method: "POST",
+            success: function (result) {
+                var obj = JSON.parse(result);
+                console.log(obj);
+                $('#tbl_data').html("\
+                    <thead>\
+                            <tr align='center'>\
+                                <th>STT</th>\
+                                <th>MSSV</th>\
+                                <th>Họ tên</th>\
+                                <th>Khoa</th>\
+                                <th>Lớp</th>\
+                                <th>Địa chỉ</th>\
+                                <th>Điểm TB</th>\
+                                <th>Thao tác</th>\
+                            </tr>\
+                        </thead>\
+                    <tbody id=\"tbl_data_printer\"></tbody>\
+                    ");
+                let htmlResult = "";
+
+                for (let i = 0; i < obj.length; i++) {
+                    htmlResult += "\
+                                <tr>\
+                                    <td>" + (i + 1) + "</td>\
+                                    <td class ='MSSV'>" + obj[i].MSSV + "</td>\
+                                    <td class='HoTen'>" + obj[i].HoTen + "</td>\
+                                    <td>" + obj[i].Khoa + "</td>\
+                                    <td>" + obj[i].Lop + "</td>\
+                                    <td>" + obj[i].DiaChi + "</td>\
+                                    <td>" + obj[i].DiemTB + "</td>\
+                                    <td>\
+                                    <a href=\"/Sinhvien/Edit?id="+ obj[i].MSSV + "\"class=\"btn btn-primary mr-2\"><i class=\"fas fa-edit\"></i></a>\
+                                    <button onclick=\"Delete(this)\" class=\"btn btn-danger\"><i class=\"fas fa-trash\"></i></button>\
+                                    </td>\
+                                    ";
+                }
+                $('#tbl_data_printer').append(htmlResult);
+            }
+        }
+        )
+    }
+
+    function Delete(ele) {
+        var mssv = $(ele).parents("tr").find(".MSSV").text();
+        var name = $(ele).parents("tr").find(".HoTen").text();
+        console.log(mssv);
+        if (confirm("Xác nhận xóa sinh viên: " + name)) {
+            $.ajax({
+                url: "/Sinhvien/Delete",
+                method: "POST",
+                data: { mssv },
+                success: function (result, status, xhr) {
+                    let rs = JSON.parse(result);
+                    console.log(rs);
+                    if (rs.ErrCode == 1) {
+                        toastr.success(rs.Message);
+                        location.reload();
+                    }
+                    else {
+                        toastr.error(rs.Message);
+                    }
+                },
+                error: function () {
+                    toastr.error("Mất kết nối với máy chủ!");
+                }
+            });
+        }
+    }
+        $(function () {
+            getList();
+        });
+</script>
+

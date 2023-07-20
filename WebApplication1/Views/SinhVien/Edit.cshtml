@@ -1,0 +1,109 @@
+﻿@{
+    ViewBag.Title = "Sửa thông tin sinh viên";
+    string mssv = Request["id"];
+}
+<input type="hidden" id="MSSV-Hidden" name="MSSV-Hidden" value="@mssv" />
+<form id="form_act" enctype="multipart/form-data" method="post">
+    <div class="card-body">
+        <div class="form-group">
+            <label for="exampleInputEmail1">Mã số sinh viên</label>
+            <input type="text" name="MSSV" class="form-control" id="MSSV" placeholder="Nhập MSSV">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Họ tên</label>
+            <input type="text" name="HoTen" class="form-control" id="HoTen" placeholder="Nhập Họ tên sinh viên">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Khoa</label>
+            <select class="form-control" id="Khoa" name="Khoa">
+                <option value="Công nghệ thông tin">Công nghệ thông tin</option>
+                <option value="Tin học xây dựng">Tin học xây dựng</option>
+                <option value="Mạng hệ thống">Mạng hệ thống</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Lớp quản lý</label>
+            <input type="text" name="Lop" class="form-control" id="Lop" placeholder="Nhập Lớp quản lý">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Địa chỉ</label>
+            <input type="text" name="DiaChi" class="form-control" id="DiaChi" placeholder="Nhập Địa chỉ">
+        </div>
+        <div class="form-group">
+            <label for="exampleInputEmail1">Điểm trung bình</label>
+            <input type="text" name="DiemTB" class="form-control" id="DiemTB" placeholder="Nhập điểm trung bình">
+        </div>
+    </div>
+    <!-- /.card-body -->
+    <div class="card-footer">
+        <button type="button" id="btn_update" class="btn btn-primary">Cập nhật</button>
+        <a href="Index" class="btn btn-primary">Quay lại</a>
+    </div>
+</form>
+<script>
+    function FillData(obj) {
+        $('#MSSV').val(obj.MSSV);
+        $('#HoTen').val(obj.HoTen);
+        $('#DiaChi').val(obj.DiaChi);
+        $('#Khoa').val(obj.Khoa);
+        $('#Lop').val(obj.Lop);
+        $('#DiemTB').val(obj.DiemTB);
+    }
+    function GetObj() {
+        var mssv = $('#MSSV-Hidden').val();
+        $.ajax({
+            url: "/Sinhvien/GetObject",
+            method: "POST",
+            data: { mssv },
+            success: function (result, status, xhr) {
+                let rs = JSON.parse(result);
+                console.log(rs);
+                FillData(rs);
+            },
+            error: function () {
+                toastr.error("Mất kết nối với máy chủ!");
+            }
+        });
+    }
+
+    function Update() {
+        if (confirm("Xác nhận cập nhật thông tin sinh viên")) {
+            let form = $('#form_act')[0];
+            let formData = new FormData(form);
+            console.log(formData);
+            $.ajax({
+                url: "/Sinhvien/PostEdit",
+                method: "POST",
+                processData: false,
+                contentType: false,
+                data: formData,
+                success: function (result, status, xhr) {
+                    let rs = JSON.parse(result);
+                    console.log(rs);
+                    if (rs.ErrCode == 1) {
+                        toastr.success(rs.Message);
+                    }
+                    else {
+                        toastr.error(rs.Message);
+                    }
+                },
+                error: function () {
+                    toastr.error("Mất kết nối với máy chủ!");
+                }
+            });
+        }
+    }
+
+    function ParseInputDate(str) {
+        str = str.split('T')[0];
+        result = str;
+        return result;
+    }
+    $(function () {
+        $('#btn_update').click(function () {
+            Update();
+        });
+        GetObj();
+    });
+</script>
+
